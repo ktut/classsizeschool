@@ -665,3 +665,52 @@ export function getCategoryLabel(ratio) {
   if (ratio < 22) return 'Good (15-22:1)';
   return 'High (> 22:1)';
 }
+
+// Helper function to extract state from school address
+export function getStateFromAddress(address) {
+  const match = address.match(/,\s*([A-Z]{2})\s*\d{5}/);
+  return match ? match[1] : null;
+}
+
+// Get unique states from all schools
+export function getAvailableStates() {
+  const states = new Set();
+  schools.forEach(school => {
+    const state = getStateFromAddress(school.address);
+    if (state) states.add(state);
+  });
+  return Array.from(states).sort();
+}
+
+// State names mapping
+export const STATE_NAMES = {
+  'IL': 'Illinois',
+  'CA': 'California',
+  'NY': 'New York',
+  'TX': 'Texas',
+  'FL': 'Florida',
+  'PA': 'Pennsylvania',
+  'OH': 'Ohio',
+  'GA': 'Georgia',
+  'NC': 'North Carolina',
+  'MI': 'Michigan'
+};
+
+// Metro area configurations
+export const METRO_AREAS = {
+  'IL': {
+    name: 'Chicago',
+    center: [41.8781, -87.6298],
+    zoom: 10
+  },
+  'CA': {
+    name: 'Los Angeles',
+    center: [34.0522, -118.2437],
+    zoom: 10
+  },
+  'NY': {
+    name: 'New York City',
+    center: [40.7128, -74.0060],
+    zoom: 10
+  }
+};

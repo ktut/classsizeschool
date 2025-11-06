@@ -2,6 +2,23 @@
   <div id="app">
     <header class="app-header">
       <h1><span class="header-icon">🏫</span>School Search by Class Size</h1>
+
+      <div class="state-selector">
+        <label for="state-select">State:</label>
+        <select
+          id="state-select"
+          v-model="selectedState"
+          @change="onStateChange"
+        >
+          <option
+            v-for="state in availableStates"
+            :key="state"
+            :value="state"
+          >
+            {{ getStateName(state) }}
+          </option>
+        </select>
+      </div>
     </header>
 
     <div class="app-content">
@@ -13,8 +30,9 @@
       />
 
       <MapView
-        :schools="allSchools"
+        :schools="filteredSchools"
         :selectedSchoolIds="selectedSchoolIds"
+        :selectedState="selectedState"
         @toggle-school="toggleSchool"
       />
     </div>
@@ -24,9 +42,10 @@
 <script>
 import MapView from './components/MapView.vue'
 import SchoolList from './components/SchoolList.vue'
-import { schools } from './data/schools.js'
+import { schools, getAvailableStates, getStateFromAddress, STATE_NAMES } from './data/schools.js'
 
 const STORAGE_KEY = 'school-list-selected-schools'
+const STATE_STORAGE_KEY = 'school-list-selected-state'
 
 export default {
   name: 'App',
@@ -39,13 +58,23 @@ export default {
   data() {
     return {
       allSchools: schools,
-      selectedSchools: []
+      selectedSchools: [],
+      selectedState: 'IL',
+      availableStates: getAvailableStates()
     }
   },
 
   computed: {
     selectedSchoolIds() {
       return this.selectedSchools.map(school => school.id)
+    },
+
+    filteredSchools() {
+      if (!this.selectedState) return this.allSchools
+      return this.allSchools.filter(school => {
+        const state = getStateFromAddress(school.address)
+        return state === this.selectedState
+      })
     }
   },
 
@@ -105,10 +134,55 @@ export default {
 
       // This will be handled in SchoolList component
       // Just emit the event
+    },
+
+    getStateName(stateCode) {
+      return STATE_NAMES[stateCode] || stateCode
+    },
+
+    onStateChange() {
+      // Save selected state to localStorage
+      try {
+        localStorage.setItem(STATE_STORAGE_KEY, this.selectedState)
+      } catch (error) {
+        console.error('Error saving state to localStorage:', error)
+      }
+    },
+
+    async detectUserState() {
+      try {
+        // Try to get user's location from IP
+        const response = await fetch('https://ipapi.co/json/')
+        const data = await response.json()
+
+        if (data.region_code && this.availableStates.includes(data.region_code)) {
+          this.selectedState = data.region_code
+          localStorage.setItem(STATE_STORAGE_KEY, this.selectedState)
+        }
+      } catch (error) {
+        console.error('Error detecting user state:', error)
+        // Fall back to default (Illinois)
+      }
+    },
+
+    loadState() {
+      try {
+        const saved = localStorage.getItem(STATE_STORAGE_KEY)
+        if (saved && this.availableStates.includes(saved)) {
+          this.selectedState = saved
+        } else {
+          // If no saved state, detect from location
+          this.detectUserState()
+        }
+      } catch (error) {
+        console.error('Error loading state from localStorage:', error)
+      }
     }
   },
 
   mounted() {
+    // Load saved state first
+    this.loadState()
     // Load saved list on app start
     this.loadList()
   },

@@ -32,6 +32,7 @@ body {
   padding: 0 $spacing-lg;
   display: flex;
   align-items: center;
+  justify-content: space-between;
   box-shadow: 0 2px 8px rgba(99, 102, 241, 0.1);
   z-index: 100;
 
@@ -47,6 +48,39 @@ body {
       font-size: 28px;
       display: inline-flex;
       animation: subtle-bounce 2s ease-in-out infinite;
+    }
+  }
+
+  .state-selector {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+
+    label {
+      font-size: $font-size-base;
+      font-weight: 600;
+      color: #1e293b;
+    }
+
+    select {
+      padding: 8px 12px;
+      font-size: $font-size-base;
+      border: 2px solid #c7d2fe;
+      border-radius: $radius-md;
+      background-color: white;
+      color: #1e293b;
+      cursor: pointer;
+      transition: all 0.2s;
+
+      &:hover {
+        border-color: #a5b4fc;
+      }
+
+      &:focus {
+        outline: none;
+        border-color: #6366f1;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+      }
     }
   }
 }
@@ -323,6 +357,31 @@ body {
 
 // Responsive styles
 @media (max-width: $breakpoint-mobile) {
+  .app-header {
+    flex-direction: column;
+    height: auto;
+    padding: $spacing-sm $spacing-md;
+    gap: $spacing-sm;
+
+    h1 {
+      font-size: 18px;
+    }
+
+    .state-selector {
+      width: 100%;
+      justify-content: space-between;
+
+      label {
+        font-size: 13px;
+      }
+
+      select {
+        padding: 6px 10px;
+        font-size: 13px;
+      }
+    }
+  }
+
   .app-content {
     flex-direction: column-reverse;
   }

@@ -48,7 +48,7 @@
 </template>
 
 <script>
-import { getColorByRatio, getCategoryLabel } from '../data/schools.js'
+import { getColorByRatio, getCategoryLabel, METRO_AREAS } from '../data/schools.js'
 
 export default {
   name: 'MapView',
@@ -60,6 +60,10 @@ export default {
     },
     selectedSchoolIds: {
       type: Array,
+      required: true
+    },
+    selectedState: {
+      type: String,
       required: true
     }
   },
@@ -88,14 +92,27 @@ export default {
 
   methods: {
     initMap() {
-      // Initialize Leaflet map centered on Chicago
-      this.map = L.map('map').setView([41.8781, -87.6298], 10)
+      // Get metro area config for selected state, default to Chicago
+      const metroConfig = METRO_AREAS[this.selectedState] || METRO_AREAS['IL']
+
+      // Initialize Leaflet map centered on metro area
+      this.map = L.map('map').setView(metroConfig.center, metroConfig.zoom)
 
       // Add OpenStreetMap tile layer
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
         maxZoom: 18
       }).addTo(this.map)
+    },
+
+    recenterMap() {
+      if (!this.map) return
+
+      const metroConfig = METRO_AREAS[this.selectedState] || METRO_AREAS['IL']
+      this.map.setView(metroConfig.center, metroConfig.zoom, {
+        animate: true,
+        duration: 1
+      })
     },
 
     addSchoolMarkers() {
@@ -331,6 +348,23 @@ export default {
         }
       },
       deep: true
+    },
+
+    selectedState() {
+      // Re-center map when state changes
+      this.recenterMap()
+    },
+
+    schools() {
+      // Re-add all markers when schools list changes (state filter)
+      // Remove all existing markers
+      Object.values(this.markers).forEach(marker => {
+        marker.remove()
+      })
+      this.markers = {}
+
+      // Add new markers
+      this.addSchoolMarkers()
     }
   },
 
