@@ -8,7 +8,7 @@
       <SchoolList
         :selectedSchools="selectedSchools"
         @remove-school="removeSchool"
-        @save-list="saveList"
+        @clear-list="clearList"
         @generate-real-estate-search="generateRealEstateSearch"
       />
 
@@ -69,6 +69,10 @@ export default {
       }
     },
 
+    clearList() {
+      this.selectedSchools = []
+    },
+
     saveList() {
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(this.selectedSchoolIds))
@@ -107,6 +111,20 @@ export default {
   mounted() {
     // Load saved list on app start
     this.loadList()
+  },
+
+  watch: {
+    selectedSchools: {
+      handler() {
+        // Auto-save to localStorage whenever the list changes
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(this.selectedSchoolIds))
+        } catch (error) {
+          console.error('Error auto-saving to localStorage:', error)
+        }
+      },
+      deep: true
+    }
   }
 }
 </script>

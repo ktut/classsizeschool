@@ -1,7 +1,17 @@
 <template>
   <div class="sidebar">
     <div class="sidebar-header">
-      <h2>Your School List</h2>
+      <div class="header-top">
+        <h2>Your School List</h2>
+        <button
+          v-if="selectedSchools.length > 0"
+          class="clear-btn"
+          @click="$emit('clear-list')"
+          title="Clear all schools"
+        >
+          Clear All
+        </button>
+      </div>
       <div class="subtitle">
         {{ selectedSchools.length }} school{{ selectedSchools.length !== 1 ? 's' : '' }} selected
       </div>
@@ -39,10 +49,6 @@
     </div>
 
     <div class="sidebar-footer" v-if="selectedSchools.length > 0">
-      <button class="btn btn-primary" @click="$emit('save-list')">
-        Save List
-      </button>
-
       <div class="real-estate-dropdown" v-if="showRealEstateLinks">
         <div class="dropdown-title">Generate Real Estate Search:</div>
         <a
@@ -96,7 +102,7 @@ export default {
     }
   },
 
-  emits: ['remove-school', 'save-list', 'generate-real-estate-search'],
+  emits: ['remove-school', 'generate-real-estate-search', 'clear-list'],
 
   data() {
     return {

@@ -110,17 +110,39 @@ export default {
       const color = getColorByRatio(school.studentTeacherRatio)
       const isSelected = this.selectedSchoolIds.includes(school.id)
 
-      // Create custom circle marker
-      const markerColor = this.getMarkerColor(color)
+      let marker
 
-      const marker = L.circleMarker([school.lat, school.lng], {
-        radius: 10,
-        fillColor: markerColor,
-        color: '#ffffff',
-        weight: 2,
-        opacity: 1,
-        fillOpacity: 0.8
-      })
+      if (isSelected) {
+        // Create custom icon with green checkmark for selected schools
+        const icon = L.divIcon({
+          className: 'custom-marker-icon',
+          html: `
+            <div class="marker-selected">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="10" fill="#22c55e" stroke="#ffffff" stroke-width="2"/>
+                <path d="M8 12l2.5 2.5 5.5-5.5" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+          `,
+          iconSize: [24, 24],
+          iconAnchor: [12, 12],
+          popupAnchor: [0, -12]
+        })
+
+        marker = L.marker([school.lat, school.lng], { icon })
+      } else {
+        // Create custom circle marker for unselected schools
+        const markerColor = this.getMarkerColor(color)
+
+        marker = L.circleMarker([school.lat, school.lng], {
+          radius: 10,
+          fillColor: markerColor,
+          color: '#ffffff',
+          weight: 2,
+          opacity: 1,
+          fillOpacity: 0.8
+        })
+      }
 
       // Create popup content with checkbox
       const popupContent = this.createPopupContent(school, isSelected)
@@ -135,8 +157,24 @@ export default {
       marker.on('popupopen', () => {
         const currentlySelected = this.selectedSchoolIds.includes(school.id)
         const checkbox = document.getElementById(`school-checkbox-${school.id}`)
+        const label = document.querySelector(`label[for="school-checkbox-${school.id}"]`)
+
         if (checkbox) {
           checkbox.checked = currentlySelected
+        }
+        if (label) {
+          label.textContent = currentlySelected ? 'Remove from list' : 'Add to list'
+        }
+      })
+
+      // Update marker appearance when popup closes (if selection state changed)
+      marker.on('popupclose', () => {
+        const currentlySelected = this.selectedSchoolIds.includes(school.id)
+        if (currentlySelected !== isSelected) {
+          // Selection state changed while popup was open, update the marker
+          setTimeout(() => {
+            this.updateMarker(school.id)
+          }, 100)
         }
       })
 
@@ -163,14 +201,17 @@ export default {
               Visit website
             </a>
           </div>
-          <div class="school-checkbox" onclick="window.toggleSchool(${school.id})">
+          <div class="school-checkbox">
             <input
               type="checkbox"
               id="school-checkbox-${school.id}"
               ${isSelected ? 'checked' : ''}
               onclick="event.stopPropagation(); window.toggleSchool(${school.id})"
             />
-            <label for="school-checkbox-${school.id}">
+            <label
+              for="school-checkbox-${school.id}"
+              onclick="event.preventDefault(); window.toggleSchool(${school.id})"
+            >
               ${isSelected ? 'Remove from list' : 'Add to list'}
             </label>
           </div>
@@ -213,12 +254,22 @@ export default {
       window.toggleSchool = (schoolId) => {
         const school = this.schools.find(s => s.id === schoolId)
         if (school) {
+          // Emit the toggle event
           this.$emit('toggle-school', school)
 
-          // Small delay to allow Vue to update, then refresh the marker
-          setTimeout(() => {
-            this.updateMarker(schoolId)
-          }, 50)
+          // Immediately update the checkbox and label in the popup
+          this.$nextTick(() => {
+            const isNowSelected = this.selectedSchoolIds.includes(schoolId)
+            const checkbox = document.getElementById(`school-checkbox-${schoolId}`)
+            const label = document.querySelector(`label[for="school-checkbox-${schoolId}"]`)
+
+            if (checkbox) {
+              checkbox.checked = isNowSelected
+            }
+            if (label) {
+              label.textContent = isNowSelected ? 'Remove from list' : 'Add to list'
+            }
+          })
         }
       }
     },
@@ -269,9 +320,13 @@ export default {
           const added = newIds.filter(id => !oldIds.includes(id))
           const removed = oldIds.filter(id => !newIds.includes(id))
 
-          // Update markers for changed schools
+          // Update markers for changed schools, but not if their popup is currently open
+          // (those will be updated when the popup closes)
           ;[...added, ...removed].forEach(schoolId => {
-            this.updateMarker(schoolId)
+            const marker = this.markers[schoolId]
+            if (marker && !marker.isPopupOpen()) {
+              this.updateMarker(schoolId)
+            }
           })
         }
       },
@@ -294,6 +349,24 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+// Custom marker styles (not scoped since Leaflet injects outside component)
+:global(.custom-marker-icon) {
+  background: transparent !important;
+  border: none !important;
+
+  .marker-selected {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+
+    svg {
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+    }
+  }
+}
+
 // School dropdown styles
 .school-dropdown {
   position: absolute;

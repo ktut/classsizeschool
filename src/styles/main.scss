@@ -83,11 +83,36 @@ body {
     border-bottom: 1px solid $color-border;
     background-color: $color-bg-secondary;
 
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: $spacing-xs;
+
+      .clear-btn {
+        background-color: transparent;
+        border: 1px solid $color-border;
+        color: $color-text-light;
+        padding: 4px 12px;
+        border-radius: $radius-sm;
+        font-size: $font-size-sm;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+
+        &:hover {
+          background-color: $color-high;
+          color: white;
+          border-color: $color-high;
+        }
+      }
+    }
+
     h2 {
       font-size: $font-size-md;
       font-weight: 600;
       color: $color-text;
-      margin-bottom: $spacing-xs;
+      margin: 0;
     }
 
     .subtitle {
