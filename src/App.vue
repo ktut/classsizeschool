@@ -24,6 +24,7 @@
     <div class="app-content">
       <SchoolList
         :selectedSchools="selectedSchools"
+        :totalSchoolsInState="filteredSchools.length"
         @remove-school="removeSchool"
         @clear-list="clearList"
         @generate-real-estate-search="generateRealEstateSearch"
@@ -42,7 +43,7 @@
 <script>
 import MapView from './components/MapView.vue'
 import SchoolList from './components/SchoolList.vue'
-import { schools, getAvailableStates, getStateFromAddress, STATE_NAMES } from './data/schools.js'
+import { schools, getAllStates, getStateFromAddress, STATE_NAMES } from './data/schools.js'
 
 const STORAGE_KEY = 'school-list-selected-schools'
 const STATE_STORAGE_KEY = 'school-list-selected-state'
@@ -60,7 +61,8 @@ export default {
       allSchools: schools,
       selectedSchools: [],
       selectedState: 'IL',
-      availableStates: getAvailableStates()
+      previousState: 'IL',
+      availableStates: getAllStates()
     }
   },
 
@@ -141,7 +143,24 @@ export default {
     },
 
     onStateChange() {
-      // Save selected state to localStorage
+      // If there are selected schools, confirm before changing state
+      if (this.selectedSchools.length > 0) {
+        const confirmed = window.confirm(
+          `You have ${this.selectedSchools.length} school${this.selectedSchools.length !== 1 ? 's' : ''} in your list. Changing states will clear your list. Continue?`
+        )
+
+        if (!confirmed) {
+          // Revert to previous state
+          this.selectedState = this.previousState
+          return
+        }
+
+        // Clear selected schools if confirmed
+        this.selectedSchools = []
+      }
+
+      // Update previous state and save to localStorage
+      this.previousState = this.selectedState
       try {
         localStorage.setItem(STATE_STORAGE_KEY, this.selectedState)
       } catch (error) {
@@ -155,8 +174,10 @@ export default {
         const response = await fetch('https://ipapi.co/json/')
         const data = await response.json()
 
-        if (data.region_code && this.availableStates.includes(data.region_code)) {
+        if (data.region_code) {
+          // Accept any valid US state, not just those with schools
           this.selectedState = data.region_code
+          this.previousState = data.region_code
           localStorage.setItem(STATE_STORAGE_KEY, this.selectedState)
         }
       } catch (error) {
@@ -168,8 +189,10 @@ export default {
     loadState() {
       try {
         const saved = localStorage.getItem(STATE_STORAGE_KEY)
-        if (saved && this.availableStates.includes(saved)) {
+        if (saved && STATE_NAMES[saved]) {
+          // Accept any valid US state
           this.selectedState = saved
+          this.previousState = saved
         } else {
           // If no saved state, detect from location
           this.detectUserState()

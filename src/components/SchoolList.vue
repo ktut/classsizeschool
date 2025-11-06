@@ -18,7 +18,12 @@
     </div>
 
     <div class="sidebar-content">
-      <div v-if="selectedSchools.length === 0" class="empty-state">
+      <div v-if="totalSchoolsInState === 0" class="empty-state">
+        <strong>No schools available in this state.</strong>
+        <br><br>
+        Currently showing demo data for Illinois only. Select Illinois to see schools.
+      </div>
+      <div v-else-if="selectedSchools.length === 0" class="empty-state">
         Click on school markers on the map to add them to your list
       </div>
 
@@ -108,6 +113,10 @@ export default {
     selectedSchools: {
       type: Array,
       required: true
+    },
+    totalSchoolsInState: {
+      type: Number,
+      default: 0
     }
   },
 
