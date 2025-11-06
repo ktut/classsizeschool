@@ -1,0 +1,318 @@
+// Main styles for School Map App
+@import './variables';
+@import './map';
+
+// Reset and base styles
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: $font-family;
+  font-size: $font-size-base;
+  color: $color-text;
+  background-color: $color-bg;
+  overflow: hidden;
+}
+
+#app {
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+}
+
+// Header
+.app-header {
+  height: $header-height;
+  background: linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%);
+  border-bottom: 2px solid #c7d2fe;
+  padding: 0 $spacing-lg;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.1);
+  z-index: 100;
+
+  h1 {
+    font-size: $font-size-lg;
+    font-weight: 700;
+    color: #1e293b;
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+
+    .header-icon {
+      font-size: 28px;
+      display: inline-flex;
+      animation: subtle-bounce 2s ease-in-out infinite;
+    }
+  }
+}
+
+@keyframes subtle-bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-2px);
+  }
+}
+
+// Main content area
+.app-content {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+// Sidebar
+.sidebar {
+  width: $sidebar-width;
+  background-color: $color-bg;
+  border-right: 1px solid $color-border;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: $shadow-md;
+  z-index: 50;
+
+  .sidebar-header {
+    padding: $spacing-lg;
+    border-bottom: 1px solid $color-border;
+    background-color: $color-bg-secondary;
+
+    h2 {
+      font-size: $font-size-md;
+      font-weight: 600;
+      color: $color-text;
+      margin-bottom: $spacing-xs;
+    }
+
+    .subtitle {
+      font-size: $font-size-sm;
+      color: $color-text-light;
+    }
+  }
+
+  .sidebar-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: $spacing-md;
+  }
+
+  .sidebar-footer {
+    padding: $spacing-lg;
+    border-top: 1px solid $color-border;
+    background-color: $color-bg-secondary;
+  }
+}
+
+// School list
+.school-list {
+  .empty-state {
+    text-align: center;
+    padding: $spacing-xl;
+    color: $color-text-light;
+    font-size: $font-size-sm;
+  }
+
+  .school-item {
+    background-color: $color-bg;
+    border: 1px solid $color-border;
+    border-radius: $radius-md;
+    padding: $spacing-md;
+    margin-bottom: $spacing-md;
+    box-shadow: $shadow-sm;
+    transition: all 0.2s;
+
+    &:hover {
+      box-shadow: $shadow-md;
+      transform: translateY(-1px);
+    }
+
+    .school-item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: $spacing-sm;
+
+      .school-item-name {
+        font-size: $font-size-base;
+        font-weight: 600;
+        color: $color-text;
+        flex: 1;
+      }
+
+      .remove-btn {
+        background: none;
+        border: none;
+        color: $color-text-light;
+        cursor: pointer;
+        padding: 2px;
+        font-size: 18px;
+        line-height: 1;
+        transition: color 0.2s;
+
+        &:hover {
+          color: $color-high;
+        }
+      }
+    }
+
+    .school-item-address {
+      font-size: $font-size-sm;
+      color: $color-text-light;
+      margin-bottom: $spacing-sm;
+    }
+
+    .school-item-ratio {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: $radius-sm;
+      font-size: $font-size-sm;
+      font-weight: 600;
+      color: white;
+
+      &.excellent {
+        background-color: $color-excellent;
+      }
+
+      &.good {
+        background-color: $color-good;
+      }
+
+      &.high {
+        background-color: $color-high;
+      }
+    }
+  }
+}
+
+// Buttons
+.btn {
+  display: block;
+  width: 100%;
+  padding: $spacing-md;
+  border: none;
+  border-radius: $radius-md;
+  font-size: $font-size-base;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+  text-decoration: none;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  &.btn-primary {
+    background-color: $color-primary;
+    color: white;
+
+    &:hover:not(:disabled) {
+      background-color: darken($color-primary, 10%);
+    }
+  }
+
+  &.btn-secondary {
+    background-color: $color-bg-secondary;
+    color: $color-text;
+    border: 1px solid $color-border;
+
+    &:hover:not(:disabled) {
+      background-color: $color-hover;
+    }
+  }
+
+  &.btn-success {
+    background-color: $color-excellent;
+    color: white;
+
+    &:hover:not(:disabled) {
+      background-color: darken($color-excellent, 10%);
+    }
+  }
+
+  & + .btn {
+    margin-top: $spacing-md;
+  }
+}
+
+// Map legend
+.map-legend {
+  position: absolute;
+  bottom: $spacing-lg;
+  right: $spacing-lg;
+  background-color: white;
+  padding: $spacing-md;
+  border-radius: $radius-md;
+  box-shadow: $shadow-lg;
+  z-index: 1000;
+  font-size: $font-size-sm;
+
+  .legend-title {
+    font-weight: 600;
+    margin-bottom: $spacing-sm;
+    color: $color-text;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    margin-bottom: $spacing-xs;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    .legend-color {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      border: 2px solid white;
+      box-shadow: $shadow-sm;
+
+      &.excellent {
+        background-color: $color-excellent;
+      }
+
+      &.good {
+        background-color: $color-good;
+      }
+
+      &.high {
+        background-color: $color-high;
+      }
+    }
+
+    .legend-label {
+      color: $color-text-light;
+    }
+  }
+}
+
+// Responsive styles
+@media (max-width: $breakpoint-mobile) {
+  .app-content {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    max-height: 40vh;
+    border-right: none;
+    border-bottom: 1px solid $color-border;
+  }
+
+  .map-legend {
+    bottom: $spacing-sm;
+    right: $spacing-sm;
+    font-size: $font-size-sm;
+    padding: $spacing-sm;
+  }
+}
