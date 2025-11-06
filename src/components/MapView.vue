@@ -506,31 +506,7 @@ export default {
 // Mobile responsiveness
 @media (max-width: 768px) {
   .school-dropdown {
-    max-width: 200px;
-    min-width: 180px;
-    font-size: 10px;
-
-    .dropdown-header .dropdown-title {
-      font-size: 10px;
-    }
-
-    .dropdown-school-item {
-      padding: 6px 10px;
-
-      .school-info {
-        .school-name-small {
-          font-size: 10px;
-        }
-
-        .school-ratio-small {
-          font-size: 9px;
-        }
-      }
-    }
-
-    .dropdown-content {
-      max-height: 300px;
-    }
+    display: none;
   }
 }
 </style>

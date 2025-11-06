@@ -50,7 +50,16 @@
 
     <div class="sidebar-footer" v-if="selectedSchools.length > 0">
       <div class="real-estate-dropdown" v-if="showRealEstateLinks">
-        <div class="dropdown-title">Generate Real Estate Search:</div>
+        <div class="dropdown-header">
+          <div class="dropdown-title">Generate Real Estate Search:</div>
+          <button
+            class="close-dropdown-btn"
+            @click="toggleRealEstateLinks"
+            title="Close"
+          >
+            ×
+          </button>
+        </div>
         <a
           :href="realEstateUrls.redfin"
           target="_blank"
@@ -140,11 +149,32 @@ export default {
 
 <style lang="scss" scoped>
 .real-estate-dropdown {
-  .dropdown-title {
-    font-size: 14px;
-    font-weight: 600;
+  .dropdown-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     margin-bottom: 12px;
-    color: $color-text;
+
+    .dropdown-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: $color-text;
+    }
+
+    .close-dropdown-btn {
+      background: none;
+      border: none;
+      color: $color-text-light;
+      cursor: pointer;
+      padding: 0;
+      font-size: 24px;
+      line-height: 1;
+      transition: color 0.2s;
+
+      &:hover {
+        color: $color-high;
+      }
+    }
   }
 }
 </style>
