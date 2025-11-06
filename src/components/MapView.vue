@@ -41,7 +41,11 @@
       </div>
       <div class="legend-item">
         <div class="legend-color high"></div>
-        <div class="legend-label">High (&gt; 22:1)</div>
+        <div class="legend-label">High (22-30:1)</div>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color very-high"></div>
+        <div class="legend-label">Very High (&gt; 30:1)</div>
       </div>
     </div>
   </div>
@@ -200,7 +204,9 @@ export default {
 
     createPopupContent(school, isSelected) {
       const color = getColorByRatio(school.studentTeacherRatio)
-      const categoryClass = color === 'green' ? 'excellent' : color === 'yellow' ? 'good' : 'high'
+      const categoryClass = color === 'darkgreen' ? 'excellent' :
+                           color === 'green' ? 'good' :
+                           color === 'yellow' ? 'high' : 'very-high'
       const categoryLabel = getCategoryLabel(school.studentTeacherRatio)
 
       return `
@@ -238,6 +244,7 @@ export default {
 
     getMarkerColor(color) {
       const colors = {
+        darkgreen: '#166534',
         green: '#22c55e',
         yellow: '#eab308',
         red: '#ef4444'
@@ -323,9 +330,10 @@ export default {
 
     getColorClass(ratio) {
       const color = getColorByRatio(ratio)
-      if (color === 'green') return 'excellent'
-      if (color === 'yellow') return 'good'
-      return 'high'
+      if (color === 'darkgreen') return 'excellent'
+      if (color === 'green') return 'good'
+      if (color === 'yellow') return 'high'
+      return 'very-high'
     }
   },
 
@@ -495,15 +503,29 @@ export default {
       flex-shrink: 0;
 
       &.excellent {
-        background-color: #22c55e;
+        background-color: #166534;
+        animation: pulse-excellent 2s ease-in-out infinite;
       }
 
       &.good {
-        background-color: #eab308;
+        background-color: #22c55e;
       }
 
       &.high {
+        background-color: #eab308;
+      }
+
+      &.very-high {
         background-color: #ef4444;
+      }
+    }
+
+    @keyframes pulse-excellent {
+      0%, 100% {
+        box-shadow: 0 0 0 0 rgba(22, 101, 52, 0.7);
+      }
+      50% {
+        box-shadow: 0 0 0 3px rgba(22, 101, 52, 0);
       }
     }
 

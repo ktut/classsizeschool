@@ -1,9 +1,10 @@
 // SASS Variables for School Map App
 
 // Color coding for class size ratios
-$color-excellent: #22c55e;  // Green - ratio < 15
-$color-good: #eab308;       // Yellow - ratio 15-22
-$color-high: #ef4444;       // Red - ratio > 22
+$color-excellent: #166534;  // Dark Green - ratio < 15 (with animated border)
+$color-good: #22c55e;       // Green - ratio 15-22
+$color-high: #eab308;       // Yellow - ratio 22-30
+$color-very-high: #ef4444;  // Red - ratio > 30
 
 // Layout
 $sidebar-width: 320px;

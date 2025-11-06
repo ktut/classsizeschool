@@ -5,10 +5,12 @@ A Vue 3 web application for finding and comparing K-12 schools based on student-
 ## Features
 
 - **State Selector**: Browse schools across all 50 US states with automatic geolocation detection
-- **Cached Demo Data**: Pre-loaded data for 140 schools across Illinois and California metro areas
-  - No external API dependencies - all data is cached locally for reliability
-  - Illinois: 70 schools across Chicagoland area
-  - California: 70 schools across Los Angeles, San Francisco Bay Area, and San Diego
+- **Real School Data**: Pre-loaded data from official sources
+  - No external API dependencies during runtime - all data is fetched and cached locally
+  - Illinois: 200 real schools from Chicago Public Schools Open Data Portal
+  - California: 300 real schools from California Department of Education
+  - Data includes real addresses, coordinates, and website URLs
+  - Student-teacher ratios are currently estimated (see [Data Fetching Guide](scripts/README.md) for getting real ratios)
 - **Interactive Map**: Pan and zoom to explore school locations with automatic centering based on selected state
 - **Color-Coded Markers**: Schools are color-coded based on student-teacher ratios:
   - 🟢 Green: Excellent (< 15:1 ratio)
@@ -73,9 +75,14 @@ npm run preview
 
 ```
 classsizeschool/
-├── index.html              # Entry HTML file with LeafletJS CDN links
-├── package.json            # Project dependencies
-├── vite.config.js          # Vite configuration
+├── index.html                       # Entry HTML file with LeafletJS CDN links
+├── package.json                     # Project dependencies
+├── vite.config.js                   # Vite configuration
+├── scripts/
+│   ├── fetch-schools-illinois.js    # Fetch Illinois/Chicago schools
+│   ├── fetch-schools-california.js  # Fetch California schools
+│   ├── fetch-schools-all.js         # Fetch and combine all states
+│   └── README.md                    # Data fetching documentation and guide
 ├── src/
 │   ├── main.js             # Vue app entry point
 │   ├── App.vue             # Main app container with state management
@@ -83,7 +90,7 @@ classsizeschool/
 │   │   ├── MapView.vue     # Map component with LeafletJS markers and popups
 │   │   └── SchoolList.vue  # Sidebar school list component
 │   ├── data/
-│   │   └── schools.js      # Cached school data (IL & CA), helper functions, state configs
+│   │   └── schools.js      # Real school data from CPS, helper functions, state configs
 │   ├── styles/
 │   │   ├── main.scss       # Main styles with responsive design
 │   │   ├── _variables.scss # SASS variables
@@ -110,44 +117,66 @@ classsizeschool/
 
 ## Data Architecture
 
-The application uses **cached demo data** stored locally in `src/data/schools.js` rather than querying external APIs. This approach provides:
+The application uses **real school data** that is fetched from official sources and cached locally in `src/data/schools.js`. Data is fetched at build time rather than runtime, providing:
 
-- **Reliability**: No dependency on potentially brittle external school data APIs
+- **Reliability**: No dependency on external APIs during app usage
 - **Performance**: Instant loading with no network requests required
-- **Consistency**: Stable, curated dataset for demonstration purposes
+- **Authenticity**: Real school information from official government sources
+- **Up-to-date**: Can be refreshed anytime by re-running the fetch script
 
 ### Current Data Coverage
 
-- **Illinois**: 70 schools across Chicago and suburbs
-- **California**: 70 schools across Los Angeles, San Francisco Bay Area, and San Diego
+- **Illinois**: 200 real schools from Chicago Public Schools
+  - Source: [Chicago Data Portal](https://data.cityofchicago.org/)
+  - Includes: Real names, addresses, coordinates, and website URLs
+  - Student-teacher ratios: Currently estimated (awaiting ISBE integration)
 
-### Adding More Schools
+- **California**: 300 real schools from California Department of Education
+  - Source: [California Open Data Portal](https://data.ca.gov/)
+  - Includes: School names, locations, charter/magnet status, enrollment data
+  - Student-teacher ratios: Currently estimated (awaiting CDE integration)
 
-To expand data coverage to additional states:
+### Fetching Fresh Data
 
-1. Update `src/data/schools.js` with new school objects
-2. Each school requires:
-   - `id`: Unique number
-   - `name`: School name
-   - `address`: Full address with state code and ZIP
-   - `lat`: Latitude coordinate
-   - `lng`: Longitude coordinate
-   - `website`: School website URL
-   - `studentTeacherRatio`: Number representing the ratio
+To update the school data with the latest information:
 
-The state selector supports all 50 US states with automatic map centering for each state's major metro area.
+```bash
+# Fetch from all sources (Illinois + California)
+npm run fetch-schools
+
+# Or fetch from specific states
+npm run fetch-schools:illinois
+npm run fetch-schools:california
+```
+
+This fetches the latest data from official open data portals and updates `src/data/schools.js`.
+
+For detailed information about data sources and customization, see the [Data Fetching Guide](scripts/README.md).
+
+### Adding More States
+
+To expand coverage to additional states:
+
+1. Find the state's education department open data portal
+2. Create a new fetch script in `scripts/` (see existing scripts as templates)
+3. Add the state to `scripts/fetch-schools-all.js` to combine all sources
+4. Update `package.json` with a new npm script
+5. Each school requires: `id`, `name`, `address` (with 2-letter state code), `lat`, `lng`, `website`, `studentTeacherRatio`
+
+The state selector supports all 50 US states with automatic map centering for each state's major metro area. See the [Data Fetching Guide](scripts/README.md) for detailed instructions.
 
 ## Key Technical Decisions
 
-### Why Cached Data Instead of APIs?
+### Why Build-Time Fetching Instead of Runtime APIs?
 
-This application uses locally cached school data rather than querying external APIs for several important reasons:
+This application fetches school data at build time and caches it locally rather than querying external APIs at runtime for several important reasons:
 
-1. **Reliability**: Many free school data APIs have rate limits, unstable endpoints, or require API keys
+1. **Reliability**: No dependency on external API availability during app usage
 2. **Performance**: No network latency - schools load instantly
 3. **Offline Capability**: Works without internet connection (after initial load)
-4. **Data Quality**: Curated dataset ensures consistent, accurate student-teacher ratios
+4. **Data Quality**: Data is fetched from official government sources (Chicago Data Portal)
 5. **Privacy**: No external data tracking or API calls beyond optional geolocation
+6. **Flexibility**: Data can be refreshed anytime by running `npm run fetch-schools`
 
 ### State Persistence
 
@@ -175,3 +204,6 @@ MIT
 
 - Maps powered by [LeafletJS](https://leafletjs.com/)
 - Map data © [OpenStreetMap](https://www.openstreetmap.org/) contributors
+- School data sourced from:
+  - [Chicago Public Schools Open Data Portal](https://data.cityofchicago.org/)
+  - [California Open Data Portal](https://data.ca.gov/)

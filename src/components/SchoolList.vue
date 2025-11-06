@@ -99,6 +99,41 @@
         Generate Real Estate Search
       </button>
     </div>
+
+    <div class="data-sources">
+      <button @click="showSourcesModal = true" class="sources-link">
+        Data Sources
+      </button>
+    </div>
+
+    <!-- Data Sources Modal -->
+    <div v-if="showSourcesModal" class="modal-overlay" @click="showSourcesModal = false">
+      <div class="modal-content" @click.stop>
+        <div class="modal-header">
+          <h3>Data Sources</h3>
+          <button class="modal-close" @click="showSourcesModal = false">×</button>
+        </div>
+        <div class="modal-body">
+          <div class="source-item">
+            <h4>Illinois Schools</h4>
+            <p>200 schools from Chicago Public Schools</p>
+            <a href="https://data.cityofchicago.org/" target="_blank" rel="noopener noreferrer">
+              Chicago Data Portal →
+            </a>
+          </div>
+          <div class="source-item">
+            <h4>California Schools</h4>
+            <p>300 schools from California Department of Education</p>
+            <a href="https://data.ca.gov/" target="_blank" rel="noopener noreferrer">
+              California Open Data Portal →
+            </a>
+          </div>
+          <div class="source-note">
+            <p><strong>Note:</strong> Student-teacher ratios are currently estimated. Real ratios can be obtained from ISBE (Illinois) and CDE (California).</p>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -124,7 +159,8 @@ export default {
 
   data() {
     return {
-      showRealEstateLinks: false
+      showRealEstateLinks: false,
+      showSourcesModal: false
     }
   },
 
@@ -137,9 +173,10 @@ export default {
   methods: {
     getRatioClass(ratio) {
       const color = getColorByRatio(ratio)
-      if (color === 'green') return 'excellent'
-      if (color === 'yellow') return 'good'
-      return 'high'
+      if (color === 'darkgreen') return 'excellent'
+      if (color === 'green') return 'good'
+      if (color === 'yellow') return 'high'
+      return 'very-high'
     },
 
     toggleRealEstateLinks() {
@@ -184,6 +221,131 @@ export default {
         color: $color-high;
       }
     }
+  }
+}
+
+.data-sources {
+  padding: $spacing-md $spacing-lg;
+  border-top: 1px solid $color-border;
+  background-color: $color-bg-secondary;
+  text-align: center;
+
+  .sources-link {
+    background: none;
+    border: none;
+    color: $color-primary;
+    text-decoration: none;
+    font-size: $font-size-sm;
+    cursor: pointer;
+    transition: color 0.2s;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  padding: $spacing-lg;
+}
+
+.modal-content {
+  background: white;
+  border-radius: $radius-lg;
+  max-width: 500px;
+  width: 100%;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: $shadow-lg;
+
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: $spacing-lg;
+    border-bottom: 1px solid $color-border;
+
+    h3 {
+      margin: 0;
+      font-size: $font-size-lg;
+      color: $color-text;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 28px;
+      color: $color-text-light;
+      cursor: pointer;
+      padding: 0;
+      line-height: 1;
+      transition: color 0.2s;
+
+      &:hover {
+        color: $color-text;
+      }
+    }
+  }
+
+  .modal-body {
+    padding: $spacing-lg;
+
+    .source-item {
+      margin-bottom: $spacing-lg;
+
+      h4 {
+        margin: 0 0 $spacing-xs 0;
+        font-size: $font-size-md;
+        color: $color-text;
+      }
+
+      p {
+        margin: 0 0 $spacing-xs 0;
+        font-size: $font-size-sm;
+        color: $color-text-light;
+      }
+
+      a {
+        color: $color-primary;
+        text-decoration: none;
+        font-size: $font-size-sm;
+        font-weight: 500;
+
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+    }
+
+    .source-note {
+      margin-top: $spacing-lg;
+      padding: $spacing-md;
+      background-color: $color-bg-secondary;
+      border-radius: $radius-sm;
+      border-left: 3px solid $color-primary;
+
+      p {
+        margin: 0;
+        font-size: $font-size-sm;
+        color: $color-text;
+      }
+    }
+  }
+}
+
+@media (max-width: $breakpoint-mobile) {
+  .data-sources {
+    padding: $spacing-sm $spacing-md;
   }
 }
 </style>
