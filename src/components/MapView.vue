@@ -66,7 +66,7 @@ export default {
       type: Array,
       required: true
     },
-    selectedState: {
+    selectedArea: {
       type: String,
       required: true
     }
@@ -96,8 +96,8 @@ export default {
 
   methods: {
     initMap() {
-      // Get metro area config for selected state, default to Chicago
-      const metroConfig = METRO_AREAS[this.selectedState] || METRO_AREAS['IL']
+      // Get metro area config for selected area, default to Chicago
+      const metroConfig = METRO_AREAS[this.selectedArea] || METRO_AREAS['chicago']
 
       // Initialize Leaflet map centered on metro area
       this.map = L.map('map').setView(metroConfig.center, metroConfig.zoom)
@@ -112,7 +112,7 @@ export default {
     recenterMap() {
       if (!this.map) return
 
-      const metroConfig = METRO_AREAS[this.selectedState] || METRO_AREAS['IL']
+      const metroConfig = METRO_AREAS[this.selectedArea] || METRO_AREAS['chicago']
       this.map.setView(metroConfig.center, metroConfig.zoom, {
         animate: true,
         duration: 1
@@ -358,13 +358,13 @@ export default {
       deep: true
     },
 
-    selectedState() {
-      // Re-center map when state changes
+    selectedArea() {
+      // Re-center map when area changes
       this.recenterMap()
     },
 
     schools() {
-      // Re-add all markers when schools list changes (state filter)
+      // Re-add all markers when schools list changes (area filter)
       // Remove all existing markers
       Object.values(this.markers).forEach(marker => {
         marker.remove()

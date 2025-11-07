@@ -1,21 +1,22 @@
 # School Search by Class Size
 
-A Vue 3 web application for finding and comparing K-12 schools based on student-teacher class size ratios. Search schools across multiple states and generate real estate searches around your selected schools.
+A Vue 3 web application for finding and comparing K-12 schools based on student-teacher class size ratios. Search schools in Greater Chicagoland Area and LA Area and generate real estate searches around your selected schools.
 
 ## Features
 
-- **State Selector**: Browse schools across all 50 US states with automatic geolocation detection
-- **Real School Data**: Pre-loaded data from official sources
+- **Area Selector**: Browse schools in Greater Chicagoland Area and LA Area with automatic geolocation detection
+- **Real School Data**: Pre-loaded data from official sources (700 total schools)
   - No external API dependencies during runtime - all data is fetched and cached locally
-  - Illinois: 200 real schools from Chicago Public Schools Open Data Portal
-  - California: 300 real schools from California Department of Education
+  - Greater Chicagoland Area: 200 real schools from Chicago Public Schools Open Data Portal
+  - LA Area: 500 real schools from California Department of Education (LA, Orange, Riverside, San Bernardino counties)
   - Data includes real addresses, coordinates, and website URLs
   - Student-teacher ratios are currently estimated (see [Data Fetching Guide](scripts/README.md) for getting real ratios)
-- **Interactive Map**: Pan and zoom to explore school locations with automatic centering based on selected state
+- **Interactive Map**: Pan and zoom to explore school locations with automatic centering based on selected metro area
 - **Color-Coded Markers**: Schools are color-coded based on student-teacher ratios:
-  - 🟢 Green: Excellent (< 15:1 ratio)
-  - 🟡 Yellow: Good (15-22:1 ratio)
-  - 🔴 Red: High (> 22:1 ratio)
+  - 🟢 Dark Green: Excellent (< 15:1 ratio) with animated pulsing border
+  - 🟢 Green: Good (15-22:1 ratio)
+  - 🟡 Yellow: High (22-30:1 ratio)
+  - 🔴 Red: Very High (> 30:1 ratio)
 - **Visual Selection Indicators**: Selected schools display green checkmarks instead of colored circles
 - **School Information**: Click any marker to view:
   - School name and address
@@ -25,7 +26,7 @@ A Vue 3 web application for finding and comparing K-12 schools based on student-
 - **Build Your List**: Add schools to your personal list via checkbox in the popup
 - **Auto-Save**: Your school list automatically saves to browser localStorage
 - **Clear All**: Quickly clear your entire school list with one click
-- **State Change Protection**: Confirmation dialog prevents accidental loss of your list when changing states
+- **Area Change Protection**: Confirmation dialog prevents accidental loss of your list when changing metro areas
 - **Real Estate Search**: Generate search links for Redfin, Zillow, or Compass covering the area around your selected schools
 - **Mobile Optimized**: Responsive design with compact view for mobile devices
 
@@ -75,22 +76,22 @@ npm run preview
 
 ```
 classsizeschool/
-├── index.html                       # Entry HTML file with LeafletJS CDN links
-├── package.json                     # Project dependencies
-├── vite.config.js                   # Vite configuration
+├── index.html                    # Entry HTML file with LeafletJS CDN links
+├── package.json                  # Project dependencies
+├── vite.config.js                # Vite configuration
 ├── scripts/
-│   ├── fetch-schools-illinois.js    # Fetch Illinois/Chicago schools
-│   ├── fetch-schools-california.js  # Fetch California schools
-│   ├── fetch-schools-all.js         # Fetch and combine all states
-│   └── README.md                    # Data fetching documentation and guide
+│   ├── fetch-schools-chicago.js  # Fetch Greater Chicagoland Area schools
+│   ├── fetch-schools-la.js       # Fetch LA Area schools (Greater LA counties)
+│   ├── fetch-schools-all.js      # Fetch and combine all metro areas
+│   └── README.md                 # Data fetching documentation and guide
 ├── src/
 │   ├── main.js             # Vue app entry point
-│   ├── App.vue             # Main app container with state management
+│   ├── App.vue             # Main app container with area management
 │   ├── components/
 │   │   ├── MapView.vue     # Map component with LeafletJS markers and popups
 │   │   └── SchoolList.vue  # Sidebar school list component
 │   ├── data/
-│   │   └── schools.js      # Real school data from CPS, helper functions, state configs
+│   │   └── schools.js      # Real school data, helper functions, metro area configs
 │   ├── styles/
 │   │   ├── main.scss       # Main styles with responsive design
 │   │   ├── _variables.scss # SASS variables
@@ -101,8 +102,8 @@ classsizeschool/
 
 ## Usage
 
-1. **Select State**: Choose a state from the dropdown selector (auto-detects your state on first visit)
-2. **Browse Schools**: Pan and zoom the map to explore schools in the selected state
+1. **Select Area**: Choose between Greater Chicagoland Area or LA Area from the dropdown selector (auto-detects your area on first visit)
+2. **Browse Schools**: Pan and zoom the map to explore schools in the selected metro area
 3. **View Details**: Click any school marker to see detailed information in a popup
 4. **Add to List**: Check the box in the school popup to add it to your list
    - Selected schools display green checkmarks on the map
@@ -112,7 +113,7 @@ classsizeschool/
    - Click "Clear All" to empty your entire list
 6. **Real Estate Search**: Click "Generate Real Estate Search" to get links to property listings near your selected schools
    - Links open for Redfin, Zillow, and Compass
-7. **Change States**: Select a different state from the dropdown
+7. **Change Areas**: Select a different metro area from the dropdown
    - You'll be prompted to confirm if you have schools in your list
 
 ## Data Architecture
@@ -126,44 +127,32 @@ The application uses **real school data** that is fetched from official sources 
 
 ### Current Data Coverage
 
-- **Illinois**: 200 real schools from Chicago Public Schools
+- **Greater Chicagoland Area**: 200 real schools from Chicago Public Schools
   - Source: [Chicago Data Portal](https://data.cityofchicago.org/)
   - Includes: Real names, addresses, coordinates, and website URLs
-  - Student-teacher ratios: Currently estimated (awaiting ISBE integration)
+  - Student-teacher ratios: Currently estimated
 
-- **California**: 300 real schools from California Department of Education
+- **LA Area**: 500 real schools from Greater LA (LA, Orange, Riverside, San Bernardino counties)
   - Source: [California Open Data Portal](https://data.ca.gov/)
   - Includes: School names, locations, charter/magnet status, enrollment data
-  - Student-teacher ratios: Currently estimated (awaiting CDE integration)
+  - Student-teacher ratios: Currently estimated
 
 ### Fetching Fresh Data
 
 To update the school data with the latest information:
 
 ```bash
-# Fetch from all sources (Illinois + California)
+# Fetch from all metro areas (Chicago + LA)
 npm run fetch-schools
 
-# Or fetch from specific states
-npm run fetch-schools:illinois
-npm run fetch-schools:california
+# Or fetch from specific metro areas
+npm run fetch-schools:chicago
+npm run fetch-schools:la
 ```
 
 This fetches the latest data from official open data portals and updates `src/data/schools.js`.
 
 For detailed information about data sources and customization, see the [Data Fetching Guide](scripts/README.md).
-
-### Adding More States
-
-To expand coverage to additional states:
-
-1. Find the state's education department open data portal
-2. Create a new fetch script in `scripts/` (see existing scripts as templates)
-3. Add the state to `scripts/fetch-schools-all.js` to combine all sources
-4. Update `package.json` with a new npm script
-5. Each school requires: `id`, `name`, `address` (with 2-letter state code), `lat`, `lng`, `website`, `studentTeacherRatio`
-
-The state selector supports all 50 US states with automatic map centering for each state's major metro area. See the [Data Fetching Guide](scripts/README.md) for detailed instructions.
 
 ## Key Technical Decisions
 
@@ -178,11 +167,11 @@ This application fetches school data at build time and caches it locally rather 
 5. **Privacy**: No external data tracking or API calls beyond optional geolocation
 6. **Flexibility**: Data can be refreshed anytime by running `npm run fetch-schools`
 
-### State Persistence
+### Area Persistence
 
-- Selected state is stored in localStorage and persists across sessions
+- Selected metro area is stored in localStorage and persists across sessions
 - School selections are auto-saved to localStorage on every change
-- State changes with populated lists trigger confirmation dialogs to prevent accidental data loss
+- Area changes with populated lists trigger confirmation dialogs to prevent accidental data loss
 
 ### Mobile-First Design
 
@@ -194,7 +183,7 @@ The application uses responsive CSS with a mobile breakpoint at 768px:
 
 - Modern browsers (Chrome, Firefox, Safari, Edge)
 - LocalStorage required for auto-save functionality
-- Optional: IP-based geolocation for automatic state detection (uses ipapi.co)
+- Optional: IP-based geolocation for automatic metro area detection (uses ipapi.co)
 
 ## License
 

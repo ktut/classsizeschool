@@ -9,8 +9,8 @@ const __dirname = path.dirname(__filename);
 // California Open Data Portal - ArcGIS REST API for schools
 const CA_SCHOOLS_API = 'https://services3.arcgis.com/fdvHcZVgB2QSRNkL/arcgis/rest/services/SchoolSites2223/FeatureServer/0/query';
 
-// Limit the number of schools to fetch
-const LIMIT = 300;
+// Limit the number of schools to fetch (Greater LA Area: LA, Orange, Riverside, San Bernardino counties)
+const LIMIT = 500;
 
 /**
  * Fetch data from ArcGIS REST API
@@ -55,7 +55,7 @@ function generateRealisticRatio(school) {
 }
 
 /**
- * Transform California data to our format
+ * Transform LA Area school data to our format
  */
 function transformSchoolData(caSchools, startId = 1) {
   const schools = [];
@@ -79,13 +79,12 @@ function transformSchoolData(caSchools, startId = 1) {
     // Build address
     let address = attrs.Street || attrs.Address || '';
     const city = attrs.City || '';
-    const state = attrs.State || 'CA';
     const zip = attrs.Zip || '';
 
     if (address && city && zip) {
-      address = `${address}, ${city}, ${state} ${zip}`;
+      address = `${address}, ${city}, la ${zip}`;
     } else if (!address) {
-      address = `${city}, ${state}`;
+      address = `${city}, la`;
     }
 
     // Get school name
@@ -129,11 +128,12 @@ function transformSchoolData(caSchools, startId = 1) {
  */
 async function main() {
   try {
-    console.log('🔍 Fetching school data from California Open Data Portal...');
+    console.log('🔍 Fetching school data for Greater LA Area from California Open Data Portal...');
 
     // ArcGIS REST API query parameters
+    // Filter for Greater LA counties: LA, Orange, Riverside, San Bernardino
     const params = new URLSearchParams({
-      where: "Status='Active'", // Only active schools
+      where: "Status='Active' AND (CountyName='Los Angeles' OR CountyName='Orange' OR CountyName='Riverside' OR CountyName='San Bernardino')",
       outFields: '*', // All fields
       outSR: '4326', // WGS84 coordinate system (lat/lng)
       f: 'json', // JSON format
@@ -149,7 +149,7 @@ async function main() {
       throw new Error('No schools returned from API');
     }
 
-    console.log(`📊 Fetched ${response.features.length} schools from California`);
+    console.log(`📊 Fetched ${response.features.length} schools from Greater LA Area`);
 
     // Log a sample school to see what fields are available
     if (response.features.length > 0) {
@@ -169,7 +169,7 @@ async function main() {
     return transformedSchools;
 
   } catch (error) {
-    console.error('❌ Error fetching California school data:', error.message);
+    console.error('❌ Error fetching LA Area school data:', error.message);
     throw error;
   }
 }
@@ -191,14 +191,14 @@ if (import.meta.url === `file://${process.argv[1]}`) {
       const ilSchools = JSON.parse(ilMatch[1]);
       const nextId = Math.max(...ilSchools.map(s => s.id)) + 1;
 
-      // Transform California schools with new IDs
-      const caSchools = schools.map((s, i) => ({
+      // Transform LA Area schools with new IDs
+      const laSchools = schools.map((s, i) => ({
         ...s,
         id: nextId + i
       }));
 
       // Combine both
-      const allSchools = [...ilSchools, ...caSchools];
+      const allSchools = [...ilSchools, ...laSchools];
 
       // Generate new file content
       const newContent = existingContent.replace(
@@ -209,11 +209,11 @@ if (import.meta.url === `file://${process.argv[1]}`) {
         `// Generated on ${new Date().toISOString()}`
       ).replace(
         /\/\/ Source: .*/,
-        '// Source: Chicago Public Schools Open Data + California Open Data Portal'
+        '// Source: Chicago Public Schools Open Data + California Open Data Portal (Greater LA Area)'
       );
 
       fs.writeFileSync(schoolsPath, newContent, 'utf8');
-      console.log(`\n✅ Added ${caSchools.length} California schools to ${schoolsPath}`);
+      console.log(`\n✅ Added ${laSchools.length} LA Area schools to ${schoolsPath}`);
       console.log(`📊 Total schools: ${allSchools.length}`);
     })
     .catch(error => {
@@ -222,4 +222,4 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     });
 }
 
-export { main as fetchCaliforniaSchools };
+export { main as fetchLASchools };

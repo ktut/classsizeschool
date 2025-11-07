@@ -1,15 +1,15 @@
 {
   "name": "class-size-map",
   "version": "1.0.0",
-  "description": "School List by Class Size Search - A Vue 3 app for finding schools in Chicagoland by class size",
+  "description": "School List by Class Size Search - A Vue 3 app for finding schools in Greater Chicagoland Area and LA Area by class size",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
     "fetch-schools": "node scripts/fetch-schools-all.js",
-    "fetch-schools:illinois": "node scripts/fetch-schools-illinois.js",
-    "fetch-schools:california": "node scripts/fetch-schools-california.js",
+    "fetch-schools:chicago": "node scripts/fetch-schools-chicago.js",
+    "fetch-schools:la": "node scripts/fetch-schools-la.js",
     "fetch-schools:all": "node scripts/fetch-schools-all.js"
   },
   "dependencies": {

@@ -4,18 +4,18 @@
       <h1><span class="header-icon">🏫</span>School Search by Class Size</h1>
 
       <div class="state-selector">
-        <label for="state-select">State:</label>
+        <label for="area-select">Area:</label>
         <select
-          id="state-select"
-          v-model="selectedState"
-          @change="onStateChange"
+          id="area-select"
+          v-model="selectedArea"
+          @change="onAreaChange"
         >
           <option
-            v-for="state in availableStates"
-            :key="state"
-            :value="state"
+            v-for="area in availableAreas"
+            :key="area"
+            :value="area"
           >
-            {{ getStateName(state) }}
+            {{ getAreaName(area) }}
           </option>
         </select>
       </div>
@@ -33,7 +33,7 @@
       <MapView
         :schools="filteredSchools"
         :selectedSchoolIds="selectedSchoolIds"
-        :selectedState="selectedState"
+        :selectedArea="selectedArea"
         @toggle-school="toggleSchool"
       />
     </div>
@@ -43,10 +43,10 @@
 <script>
 import MapView from './components/MapView.vue'
 import SchoolList from './components/SchoolList.vue'
-import { schools, getAllStates, getStateFromAddress, STATE_NAMES } from './data/schools.js'
+import { schools, getAvailableAreas, getAreaFromAddress, AREA_NAMES } from './data/schools.js'
 
 const STORAGE_KEY = 'school-list-selected-schools'
-const STATE_STORAGE_KEY = 'school-list-selected-state'
+const AREA_STORAGE_KEY = 'school-list-selected-area'
 
 export default {
   name: 'App',
@@ -60,9 +60,9 @@ export default {
     return {
       allSchools: schools,
       selectedSchools: [],
-      selectedState: 'IL',
-      previousState: 'IL',
-      availableStates: getAllStates()
+      selectedArea: 'chicago',
+      previousArea: 'chicago',
+      availableAreas: getAvailableAreas()
     }
   },
 
@@ -72,10 +72,10 @@ export default {
     },
 
     filteredSchools() {
-      if (!this.selectedState) return this.allSchools
+      if (!this.selectedArea) return this.allSchools
       return this.allSchools.filter(school => {
-        const state = getStateFromAddress(school.address)
-        return state === this.selectedState
+        const area = getAreaFromAddress(school.address)
+        return area === this.selectedArea
       })
     }
   },
@@ -138,20 +138,20 @@ export default {
       // Just emit the event
     },
 
-    getStateName(stateCode) {
-      return STATE_NAMES[stateCode] || stateCode
+    getAreaName(areaCode) {
+      return AREA_NAMES[areaCode] || areaCode
     },
 
-    onStateChange() {
-      // If there are selected schools, confirm before changing state
+    onAreaChange() {
+      // If there are selected schools, confirm before changing area
       if (this.selectedSchools.length > 0) {
         const confirmed = window.confirm(
-          `You have ${this.selectedSchools.length} school${this.selectedSchools.length !== 1 ? 's' : ''} in your list. Changing states will clear your list. Continue?`
+          `You have ${this.selectedSchools.length} school${this.selectedSchools.length !== 1 ? 's' : ''} in your list. Changing areas will clear your list. Continue?`
         )
 
         if (!confirmed) {
-          // Revert to previous state
-          this.selectedState = this.previousState
+          // Revert to previous area
+          this.selectedArea = this.previousArea
           return
         }
 
@@ -159,53 +159,60 @@ export default {
         this.selectedSchools = []
       }
 
-      // Update previous state and save to localStorage
-      this.previousState = this.selectedState
+      // Update previous area and save to localStorage
+      this.previousArea = this.selectedArea
       try {
-        localStorage.setItem(STATE_STORAGE_KEY, this.selectedState)
+        localStorage.setItem(AREA_STORAGE_KEY, this.selectedArea)
       } catch (error) {
-        console.error('Error saving state to localStorage:', error)
+        console.error('Error saving area to localStorage:', error)
       }
     },
 
-    async detectUserState() {
+    async detectUserArea() {
       try {
         // Try to get user's location from IP
         const response = await fetch('https://ipapi.co/json/')
         const data = await response.json()
 
         if (data.region_code) {
-          // Accept any valid US state, not just those with schools
-          this.selectedState = data.region_code
-          this.previousState = data.region_code
-          localStorage.setItem(STATE_STORAGE_KEY, this.selectedState)
+          // Check if user is near Chicago area (IL) or LA area (CA)
+          let area = 'chicago' // Default to Chicago
+          if (data.region_code === 'CA') {
+            area = 'la'
+          } else if (data.region_code === 'IL') {
+            area = 'chicago'
+          }
+
+          this.selectedArea = area
+          this.previousArea = area
+          localStorage.setItem(AREA_STORAGE_KEY, this.selectedArea)
         }
       } catch (error) {
-        console.error('Error detecting user state:', error)
-        // Fall back to default (Illinois)
+        console.error('Error detecting user area:', error)
+        // Fall back to default (Chicago)
       }
     },
 
-    loadState() {
+    loadArea() {
       try {
-        const saved = localStorage.getItem(STATE_STORAGE_KEY)
-        if (saved && STATE_NAMES[saved]) {
-          // Accept any valid US state
-          this.selectedState = saved
-          this.previousState = saved
+        const saved = localStorage.getItem(AREA_STORAGE_KEY)
+        if (saved && AREA_NAMES[saved]) {
+          // Accept any valid metro area
+          this.selectedArea = saved
+          this.previousArea = saved
         } else {
-          // If no saved state, detect from location
-          this.detectUserState()
+          // If no saved area, detect from location
+          this.detectUserArea()
         }
       } catch (error) {
-        console.error('Error loading state from localStorage:', error)
+        console.error('Error loading area from localStorage:', error)
       }
     }
   },
 
   mounted() {
-    // Load saved state first
-    this.loadState()
+    // Load saved area first
+    this.loadArea()
     // Load saved list on app start
     this.loadList()
   },

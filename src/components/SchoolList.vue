@@ -19,9 +19,9 @@
 
     <div class="sidebar-content">
       <div v-if="totalSchoolsInState === 0" class="empty-state">
-        <strong>No schools available in this state.</strong>
+        <strong>No schools available in this area.</strong>
         <br><br>
-        Currently showing cached data for Illinois and California only. Select one of those states to see schools.
+        Currently showing cached data for Greater Chicagoland Area and LA Area only. Select one of those areas to see schools.
       </div>
       <div v-else-if="selectedSchools.length === 0" class="empty-state">
         Click on school markers on the map to add them to your list
@@ -115,21 +115,21 @@
         </div>
         <div class="modal-body">
           <div class="source-item">
-            <h4>Illinois Schools</h4>
+            <h4>Greater Chicagoland Area</h4>
             <p>200 schools from Chicago Public Schools</p>
             <a href="https://data.cityofchicago.org/" target="_blank" rel="noopener noreferrer">
               Chicago Data Portal →
             </a>
           </div>
           <div class="source-item">
-            <h4>California Schools</h4>
-            <p>300 schools from California Department of Education</p>
+            <h4>LA Area</h4>
+            <p>500 schools from Greater LA (LA, Orange, Riverside, San Bernardino counties)</p>
             <a href="https://data.ca.gov/" target="_blank" rel="noopener noreferrer">
               California Open Data Portal →
             </a>
           </div>
           <div class="source-note">
-            <p><strong>Note:</strong> Student-teacher ratios are currently estimated. Real ratios can be obtained from ISBE (Illinois) and CDE (California).</p>
+            <p><strong>Note:</strong> Student-teacher ratios are currently estimated. Real ratios can be obtained from the respective school districts or state departments of education.</p>
           </div>
         </div>
       </div>

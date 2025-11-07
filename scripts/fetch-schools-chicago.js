@@ -103,12 +103,12 @@ function transformSchoolData(cpsSchools) {
     // Build address
     let address = school.address;
     if (address && school.city && school.zip) {
-      // Build full address with IL state code (not full state name)
-      address = `${address}, ${school.city}, IL ${school.zip}`;
+      // Build full address with metro area code
+      address = `${address}, ${school.city}, chicago ${school.zip}`;
     } else if (!address && school.street_address) {
-      address = `${school.street_address}, Chicago, IL ${school.zip || '60601'}`;
+      address = `${school.street_address}, Chicago, chicago ${school.zip || '60601'}`;
     } else if (!address) {
-      address = 'Chicago, IL';
+      address = 'Chicago, chicago';
     }
 
     // Get school name
@@ -311,13 +311,13 @@ export const METRO_AREAS = {
  */
 async function main() {
   try {
-    console.log('🔍 Fetching school data from Chicago Data Portal...');
+    console.log('🔍 Fetching school data for Greater Chicagoland Area from Chicago Data Portal...');
     console.log(`API: ${CHICAGO_SCHOOLS_API}?$limit=${LIMIT}`);
 
     const url = `${CHICAGO_SCHOOLS_API}?$limit=${LIMIT}`;
     const cpsSchools = await fetchData(url);
 
-    console.log(`📊 Fetched ${cpsSchools.length} schools from Chicago Data Portal`);
+    console.log(`📊 Fetched ${cpsSchools.length} schools from Greater Chicagoland Area`);
 
     // Log a sample school to see what fields are available
     if (cpsSchools.length > 0) {
@@ -337,7 +337,7 @@ async function main() {
     return transformedSchools;
 
   } catch (error) {
-    console.error('❌ Error fetching Illinois school data:', error.message);
+    console.error('❌ Error fetching Greater Chicagoland Area school data:', error.message);
     throw error;
   }
 }
@@ -360,4 +360,4 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     });
 }
 
-export { main as fetchIllinoisSchools };
+export { main as fetchChicagoSchools };
